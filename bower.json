@@ -1,0 +1,19 @@
+{
+  "name": "nat_sof_lib",
+  "homepage": "https://github.com/fordagame/nat_sof_lib",
+  "authors": [
+    "NatSA"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "version": "1.0.0"
+}
