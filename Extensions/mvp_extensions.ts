@@ -22,8 +22,33 @@ namespace dcore.plugins.mvp_extension {
                 root.innerHTML = this.template.call(this, model);
             }
             root.classList.remove("invalid"); //We want to remove invalid border if we re-render the view.
-
             return root;
+        }
+
+        partialRender(model: any, partialSelector: string) {
+            if (this.template) {
+                let rootElement: HTMLElement = document.createElement("div");
+                rootElement.innerHTML = this.template.call(this, model);
+                let partialContainer: HTMLElement = <HTMLElement>rootElement.querySelector(partialSelector);
+                let rootPartialContainer: HTMLElement = <HTMLElement>this.root.querySelector(partialSelector);
+                if (rootPartialContainer) {
+                    rootPartialContainer.innerHTML = partialContainer.innerHTML;
+                }
+            }
+        }
+
+        partialAppend(model: any, partialSelector: string) {
+            if (this.template) {
+                let rootElement: HTMLElement = document.createElement("div");
+                rootElement.innerHTML = this.template.call(this, model);
+                let partialContainer: HTMLElement = <HTMLElement>rootElement.querySelector(partialSelector);
+                let rootPartialContainer: HTMLElement = <HTMLElement>this.root.querySelector(partialSelector);
+                if (rootPartialContainer) {
+                    while (partialContainer.children.length > 0) {
+                        rootPartialContainer.appendChild(partialContainer.children[0]);
+                    }
+                }
+            }
         }
 
         getValue(selector: string): string {
@@ -92,6 +117,26 @@ namespace dcore.plugins.mvp_extension {
             else {
                 return false;
             }
+        }
+
+        setValue(selector: string, value: string) {
+            let element: HTMLInputElement = <HTMLInputElement>this.root.querySelector(selector);
+            element.value = value;
+        }
+
+        setInnerText(selector: string, text: string) {
+            let element: HTMLElement = <HTMLElement>this.root.querySelector(selector);
+            element.innerText = text;
+        }
+
+        setHTML(selector: string, html: string) {
+            let element: HTMLElement = <HTMLElement>this.root.querySelector(selector);
+            element.innerHTML = html;
+        }
+
+        appendHTML(selector: string, html: HTMLElement) {
+            let element: HTMLElement = <HTMLElement>this.root.querySelector(selector);
+            element.appendChild(html);
         }
 
         destroy() {
@@ -429,6 +474,69 @@ namespace dcore.plugins.mvp_extension {
                 element.value = ((mvalue - (mvalue % mstep)) / (10 * 10)).toString();
             }
             element.setAttribute("value", element.value);
+        }
+
+        add_editable_event(event_handler: (value: string, event: string, id: string) => void) {
+            this.addEventListener({
+                type: "click",
+                selector: "[data-editable]",
+                listener: this.editable_box_click.bind(this, event_handler)
+            });
+        }
+
+
+        editable_box_click(event_handler: (value: string, event: string, id: string) => void, ev: Event) {
+            let element: HTMLElement = <HTMLElement>ev.target;
+            let editableInput: HTMLInputElement = document.createElement("input");
+            editableInput.classList.add("w3-input");
+            editableInput.addEventListener("keyup", this.editable_events_handle.bind(this, event_handler));
+            editableInput.value = element.innerText;
+            editableInput.setAttribute("data-editableevent", element.dataset["editableevent"]);
+            editableInput.setAttribute("data-editableid", element.dataset["editableid"]);
+            editableInput.setAttribute("data-parentid", element.id);
+
+            if (element.dataset["editabletype"]) {
+                editableInput.type = element.dataset["editabletype"];
+            }
+
+            if (element.dataset["editablemin"]) {
+                editableInput.setAttribute("min", element.dataset["editablemin"]);
+            }
+
+            if (element.dataset["editablestep"]) {
+                editableInput.setAttribute("step", element.dataset["editablestep"]);
+                editableInput.setAttribute("data-step", element.dataset["editablestep"]);
+            }
+
+            element.parentElement.insertBefore(editableInput, element);
+            element.classList.add("w3-hide");
+
+        }
+
+        editable_events_handle(event_handler: (value: string, event: string, id: string) => void, ev: KeyboardEvent) {
+            let element: HTMLInputElement = <HTMLInputElement>ev.target;
+            let text = element.value;
+            if (ev.which == 13 && text) {
+                event_handler(text, element.dataset["editableevent"], element.dataset["editableid"]);
+                let parentElement: HTMLElement = <HTMLElement>this.root.querySelector("#" + element.dataset["parentid"]);
+                element.remove();
+                parentElement.classList.remove("w3-hide");
+            }
+            if (ev.which == 27) {
+                let parentElement: HTMLElement = <HTMLElement>this.root.querySelector("#" + element.dataset["parentid"]);
+                element.remove();
+                parentElement.classList.remove("w3-hide");
+            }
+        }
+
+        getElementIndex(element: HTMLElement): number {
+            let index: number = 0;
+            for (index = 0; index < element.parentNode.childNodes.length; index++) {
+                if (element == element.parentNode.childNodes[index]) {
+                    break;
+                }
+            }
+            return index;
         }
     }
 }

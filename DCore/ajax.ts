@@ -11,7 +11,7 @@ interface AjaxOptions {
     method?: string;
     contentType?: string;
     responseType?: string;
-    data?: string;
+    data?: any;
     converter?<T>(result: string): T;
     success<T>(result: T): void;
     error?(reason: string): void;
@@ -49,7 +49,9 @@ namespace dcore {
 
             let xhr: any = new XMLHttpRequest();
             xhr.open(request.method, url, true);
-            xhr.setRequestHeader("Content-type", request.contentType);
+            if (request.contentType != "empty") {
+                xhr.setRequestHeader("Content-type", request.contentType);
+            }
             xhr.responseType = request.responseType;
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === XMLHttpRequest.DONE) {

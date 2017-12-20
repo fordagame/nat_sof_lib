@@ -11,11 +11,18 @@
         return currentValue == value ? "checked" : ""
     });
 
-
     Handlebars.registerHelper('isSelected', function (value: any, selectValue: any): string {
         return value == selectValue ? "selected" : ""
     });
-    
+
+    Handlebars.registerHelper('lower', function (value: any, selectValue: any, cssClass: string): string {
+        return value < selectValue ? cssClass : ""
+    });
+
+    Handlebars.registerHelper('equal', function (value: any, selectValue: any, cssClass: string): string {
+        return value == selectValue ? cssClass : ""
+    });
+
     Handlebars.registerHelper('not', function (conditional, options) {
         if (!conditional) {
             return options.fn(this);

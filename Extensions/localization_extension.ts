@@ -19,16 +19,24 @@ namespace dcore.plugins.localization {
         resourceLoader: ILanguageResourceLoader;
         currentLanguage: string;
         loadedResources: string[];
+        onSuccessFunctions: any[];
         constructor(resourceLoader: ILanguageResourceLoader, defaultLanguage: string) {
             this.resources = [];
             this.resourceLoader = resourceLoader;
             this.currentLanguage = defaultLanguage;
             this.loadedResources = [];
+            this.onSuccessFunctions = [];
         }
 
         loadResource(resourceName: string, success: (resourceName: string) => void): void {
-            this.loadedResources[resourceName] = "loaded";
-            this.resourceLoader.loadLanguageResource(resourceName, this.currentLanguage, this.loadResourcesSuccess.bind(this, success));
+            if (!this.onSuccessFunctions[resourceName]) {
+                this.onSuccessFunctions[resourceName] = [];
+            }
+
+            if (this.onSuccessFunctions[resourceName].length == 0) {
+                this.resourceLoader.loadLanguageResource(resourceName, this.currentLanguage, this.loadResourcesSuccess.bind(this));
+            }
+            this.onSuccessFunctions[resourceName].push(success);
         }
 
         changeLanguage(language: string): void {
@@ -38,9 +46,13 @@ namespace dcore.plugins.localization {
             }
         }
 
-        loadResourcesSuccess(success: (resourceName: string) => void, resourceName: string, result: Array<string>) {
+        loadResourcesSuccess(resourceName: string, result: Array<string>) {
             this.resources[resourceName] = result;
-            success(resourceName);
+            this.loadedResources[resourceName] = "loaded";
+            for (var i = 0; i < this.onSuccessFunctions[resourceName].length; i++) {
+                this.onSuccessFunctions[resourceName][i](resourceName);
+            }
+            this.onSuccessFunctions[resourceName] = [];
         }
 
         translate(resourceName: string, key: string): string {
