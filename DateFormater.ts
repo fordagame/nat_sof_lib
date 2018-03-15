@@ -11,6 +11,7 @@
             case 'dd/mm hh:mm': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + ' ' + this.addZero(date.getHours()) + ':' + this.addZero(date.getMinutes());
             case 'mm/dd/yyyy': return this.addZero(date.getMonth() + 1) + '/' + this.addZero(date.getDate()) + '/' + date.getFullYear();
             case 'dd/mm/yyyy hh:mm': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + '/' + date.getFullYear() + " " + this.addZero(date.getHours()) + ':' + this.addZero(date.getMinutes());
+            case 'yyyy-mm-dd hh:mm': return date.getFullYear() + '-' + this.addZero(date.getMonth() + 1) + '-' + this.addZero(date.getDate()) + " " + this.addZero(date.getHours()) + ':' + this.addZero(date.getMinutes());
             default: return this.toString();
         }
     }

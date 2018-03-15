@@ -51,6 +51,20 @@ namespace dcore.plugins.mvp_extension {
             }
         }
 
+        partialPrepend(model: any, partialSelector: string) {
+            if (this.template) {
+                let rootElement: HTMLElement = document.createElement("div");
+                rootElement.innerHTML = this.template.call(this, model);
+                let partialContainer: HTMLElement = <HTMLElement>rootElement.querySelector(partialSelector);
+                let rootPartialContainer: HTMLElement = <HTMLElement>this.root.querySelector(partialSelector);
+                if (rootPartialContainer) {
+                    while (partialContainer.children.length > 0) {
+                        rootPartialContainer.insertBefore(partialContainer.children[0], rootPartialContainer.children[0]);
+                    }
+                }
+            }
+        }
+
         getValue(selector: string): string {
             let element: HTMLInputElement = (<HTMLInputElement>this.root.querySelector(selector));
             if (element) {
@@ -80,6 +94,16 @@ namespace dcore.plugins.mvp_extension {
             }
         }
 
+        getIntNullable(selector: string): number {
+            let val: string = this.getValue(selector);
+            if (val) {
+                return parseInt(val);
+            }
+            else {
+                return null;
+            }
+        }
+
         getFloat(selector: string): number {
             let val: string = this.getValue(selector);
             if (val) {
@@ -87,6 +111,16 @@ namespace dcore.plugins.mvp_extension {
             }
             else {
                 return 0;
+            }
+        }
+
+        getFloatNullable(selector: string): number {
+            let val: string = this.getValue(selector);
+            if (val) {
+                return parseFloat(val);
+            }
+            else {
+                return null;
             }
         }
 
@@ -284,6 +318,28 @@ namespace dcore.plugins.mvp_extension {
             return true;
         }
 
+        validateTime(element: HTMLInputElement): boolean {
+            if (element.attributes["data-time"]) {
+                let value: string = element.value;
+                let time: string[] = value.split(":");
+                if (time.length != 2) {
+                    return false;
+                }
+                let hours: number = parseInt(time[0]);
+                let minutes: number = parseInt(time[1]);
+                if (isNaN(hours) || isNaN(minutes)) {
+                    return false;
+                }
+                if (!(hours >= 0 && hours <= 23)) {
+                    return false;
+                }
+                if (!(minutes >= 0 && minutes <= 59)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         recheckValidation(element: HTMLInputElement) {
             if (element.attributes["data-revalidate"]) {
                 let recheckInputs: string[] = element.attributes["data-revalidate"].value.split(";");
@@ -351,6 +407,14 @@ namespace dcore.plugins.mvp_extension {
             }
             else {
                 element.classList.remove("invalid-equal");
+            }
+
+            if (!this.validateTime(element)) {
+                tooltip.push(element.dataset["invalidtime"]);
+                element.classList.add("invalid-time");
+            }
+            else {
+                element.classList.remove("invalid-time");
             }
 
             if (tooltip.length > 0) {
@@ -482,6 +546,21 @@ namespace dcore.plugins.mvp_extension {
                 selector: "[data-editable]",
                 listener: this.editable_box_click.bind(this, event_handler)
             });
+            this.addEventListener({
+                type: "focusout",
+                selector: "[data-editableinput]",
+                listener: this.editable_focus_out.bind(this, event_handler)
+            });
+            this.addEventListener({
+                type: "keyup",
+                selector: "[data-editableinput]",
+                listener: this.editable_events_handle.bind(this, event_handler)
+            });
+            this.addEventListener({
+                type: "keydown",
+                selector: "[data-editableinput]",
+                listener: this.editable_events_handle_keydown.bind(this, event_handler)
+            });
         }
 
 
@@ -489,14 +568,21 @@ namespace dcore.plugins.mvp_extension {
             let element: HTMLElement = <HTMLElement>ev.target;
             let editableInput: HTMLInputElement = document.createElement("input");
             editableInput.classList.add("w3-input");
-            editableInput.addEventListener("keyup", this.editable_events_handle.bind(this, event_handler));
             editableInput.value = element.innerText;
             editableInput.setAttribute("data-editableevent", element.dataset["editableevent"]);
             editableInput.setAttribute("data-editableid", element.dataset["editableid"]);
             editableInput.setAttribute("data-parentid", element.id);
+            editableInput.setAttribute("data-editableinput", "");
 
             if (element.dataset["editabletype"]) {
-                editableInput.type = element.dataset["editabletype"];
+                let type: string = element.dataset["editabletype"];
+            }
+
+            if (element.dataset["editableplaceholder"]) {
+                editableInput.placeholder = element.dataset["editableplaceholder"];
+            }
+            if (element.dataset["editabletitle"]) {
+                editableInput.title = element.dataset["editabletitle"];
             }
 
             if (element.dataset["editablemin"]) {
@@ -508,25 +594,68 @@ namespace dcore.plugins.mvp_extension {
                 editableInput.setAttribute("data-step", element.dataset["editablestep"]);
             }
 
+            if (element.dataset["editabletab"]) {
+                editableInput.setAttribute("data-tab", element.dataset["editabletab"]);
+            }
+
             element.parentElement.insertBefore(editableInput, element);
             element.classList.add("w3-hide");
+            setTimeout(function () {
+                editableInput.focus();
+                editableInput.select();
+            }, 100);
+        }
 
+        editable_events_handle_keydown(event_handler: (value: string, event: string, id: string) => void, ev: KeyboardEvent) {
+            let element: HTMLInputElement = <HTMLInputElement>ev.target;
+            let text = element.value;
+            if (ev.which == 9 || ev.which == 13 || ev.which == 27) {
+                element.setAttribute("data-stopfocusout", "true");
+            }
+            if (ev.which == 9) {
+                if (text) {
+                    event_handler(text, element.dataset["editableevent"], element.dataset["editableid"]);
+                }
+                let tabElement: HTMLElement;
+                if (element.dataset["tab"]) {
+                    tabElement = <HTMLElement>this.root.querySelector(element.dataset["tab"]);
+                }
+                this.editable_event_close(element);
+                if (tabElement) {
+                    tabElement.click();
+                }
+                ev.stopPropagation();
+            }
         }
 
         editable_events_handle(event_handler: (value: string, event: string, id: string) => void, ev: KeyboardEvent) {
             let element: HTMLInputElement = <HTMLInputElement>ev.target;
             let text = element.value;
-            if (ev.which == 13 && text) {
+            if (ev.which == 13) {
                 event_handler(text, element.dataset["editableevent"], element.dataset["editableid"]);
-                let parentElement: HTMLElement = <HTMLElement>this.root.querySelector("#" + element.dataset["parentid"]);
-                element.remove();
-                parentElement.classList.remove("w3-hide");
+                this.editable_event_close(element);
             }
             if (ev.which == 27) {
-                let parentElement: HTMLElement = <HTMLElement>this.root.querySelector("#" + element.dataset["parentid"]);
-                element.remove();
-                parentElement.classList.remove("w3-hide");
+                this.editable_event_close(element);
             }
+        }
+
+        editable_focus_out(event_handler: (value: string, event: string, id: string) => void, ev: Event) {
+            let element: HTMLInputElement = <HTMLInputElement>ev.target;
+            if (element && element.dataset["stopfocusout"]) {
+                return;
+            }
+            let text = element.value;
+            if (text) {
+                event_handler(text, element.dataset["editableevent"], element.dataset["editableid"]);
+            }
+            this.editable_event_close(element);
+        }
+
+        editable_event_close(element: HTMLElement) {
+            let parentElement: HTMLElement = <HTMLElement>this.root.querySelector("#" + element.dataset["parentid"]);
+            element.remove();
+            parentElement.classList.remove("w3-hide");
         }
 
         getElementIndex(element: HTMLElement): number {
@@ -537,6 +666,31 @@ namespace dcore.plugins.mvp_extension {
                 }
             }
             return index;
+        }
+
+
+        order_element_up(ev: Event) {
+            let orderElement: HTMLElement = (<HTMLElement>ev.target);
+            let id: number = parseInt(orderElement.attributes.getNamedItem("val").value);
+            let prefix: string = orderElement.attributes.getNamedItem("order_prefix").value;
+            let element: HTMLElement = <HTMLElement>this.root.querySelector(prefix + id);
+            var index = this.getElementIndex(element);
+            if (index == 0) {
+                return;
+            }
+            element.parentNode.insertBefore(element, element.parentNode.childNodes[index - 1]);
+        }
+
+        order_element_down(ev: Event) {
+            let orderElement: HTMLElement = (<HTMLElement>ev.target);
+            let id: number = parseInt(orderElement.attributes.getNamedItem("val").value);
+            let prefix: string = orderElement.attributes.getNamedItem("order_prefix").value;
+            let element: HTMLElement = <HTMLElement>this.root.querySelector(prefix + id);
+            var index = this.getElementIndex(element);
+            if (index == element.parentNode.childNodes.length - 1) {
+                return;
+            }
+            element.parentNode.insertBefore(element, element.parentNode.childNodes[index + 2]);
         }
     }
 }

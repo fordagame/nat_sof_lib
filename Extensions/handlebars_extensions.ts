@@ -27,5 +27,6 @@
         if (!conditional) {
             return options.fn(this);
         }
+        return options.inverse(this);
     });
 }

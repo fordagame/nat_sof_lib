@@ -403,6 +403,10 @@ namespace dcore.plugins.mvp {
             return this;
         }
 
+        resetEvents() {
+            this.eventListeners = {};
+        }
+
         /**
          *  Destroys the view.
          */
