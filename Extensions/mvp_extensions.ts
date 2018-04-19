@@ -31,7 +31,7 @@ namespace dcore.plugins.mvp_extension {
                 rootElement.innerHTML = this.template.call(this, model);
                 let partialContainer: HTMLElement = <HTMLElement>rootElement.querySelector(partialSelector);
                 let rootPartialContainer: HTMLElement = <HTMLElement>this.root.querySelector(partialSelector);
-                if (rootPartialContainer) {
+                if (rootPartialContainer && partialContainer) {
                     rootPartialContainer.innerHTML = partialContainer.innerHTML;
                 }
             }
@@ -43,7 +43,7 @@ namespace dcore.plugins.mvp_extension {
                 rootElement.innerHTML = this.template.call(this, model);
                 let partialContainer: HTMLElement = <HTMLElement>rootElement.querySelector(partialSelector);
                 let rootPartialContainer: HTMLElement = <HTMLElement>this.root.querySelector(partialSelector);
-                if (rootPartialContainer) {
+                if (rootPartialContainer && partialContainer) {
                     while (partialContainer.children.length > 0) {
                         rootPartialContainer.appendChild(partialContainer.children[0]);
                     }
@@ -57,7 +57,7 @@ namespace dcore.plugins.mvp_extension {
                 rootElement.innerHTML = this.template.call(this, model);
                 let partialContainer: HTMLElement = <HTMLElement>rootElement.querySelector(partialSelector);
                 let rootPartialContainer: HTMLElement = <HTMLElement>this.root.querySelector(partialSelector);
-                if (rootPartialContainer) {
+                if (rootPartialContainer && partialContainer) {
                     while (partialContainer.children.length > 0) {
                         rootPartialContainer.insertBefore(partialContainer.children[0], rootPartialContainer.children[0]);
                     }

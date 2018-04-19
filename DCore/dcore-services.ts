@@ -62,6 +62,14 @@ interface DSandbox {
 namespace dcore {
     "use strict";
 
+    export interface DefaultSandbox{
+        getService<T>(id: string): T;
+    }
+
+    DefaultSandbox.prototype.getService = function <T>(id: string): T {
+        return null;
+    }
+
     import services = plugins.services;
     
     export interface Instance {

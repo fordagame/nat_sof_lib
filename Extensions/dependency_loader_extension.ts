@@ -57,6 +57,14 @@ interface DSandbox {
 }
 
 namespace dcore {
+    export interface DefaultSandbox{
+        getDependencyLoader(): IDependencyLoader;
+    }
+
+    DefaultSandbox.prototype.getDependencyLoader = function (): IDependencyLoader {
+        return null;
+    }
+
     export interface Instance {
         useDependencyLoader(concreteResolvers: IConcreteDependencyResolver[]): void;
         dependency: IDependencyLoader;

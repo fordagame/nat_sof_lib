@@ -527,6 +527,14 @@ interface MVPPlugin {
 namespace dcore {
     "use strict";
 
+    export interface DefaultSandbox {
+        asMVPModel<T>(target: T): T & dcore.plugins.mvp.Model;
+    }
+
+    DefaultSandbox.prototype.asMVPModel = function <T>(target: T): T & dcore.plugins.mvp.Model {
+        return null;
+    }
+
     import mvp = plugins.mvp;
 
     export interface Instance {

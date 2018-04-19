@@ -39,6 +39,14 @@ interface DSandbox {
 }
 
 namespace dcore {
+    export interface DefaultSandbox {
+        getTemplate(templateName: string): (model: any) => string;
+    }
+
+    DefaultSandbox.prototype.getTemplate = function (templateName: string): (model: any) => string {
+        return null;
+    }
+
     export interface Instance {
         useTemplateResolver(templateResolver: ITemplateResolver): void;
         templates: ITemplateResolver;

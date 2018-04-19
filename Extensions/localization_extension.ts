@@ -90,6 +90,14 @@ interface DSandbox {
 }
 
 namespace dcore {
+    export interface DefaultSandbox{
+        getLocalization(): ILocalization;
+    }
+
+    DefaultSandbox.prototype.getLocalization = function (): ILocalization {
+        return null;
+    }
+
     export interface Instance {
         useLocalization(resourceLoader: ILanguageResourceLoader, defaultLanguage: string): void;
         localization: ILocalization;

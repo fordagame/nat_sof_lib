@@ -4,27 +4,30 @@
     }
 
     format(mask: string, date: Date) {
+        let getHours: () => number;
+        if (!(<any>date).ignoreTimezone) {
+            getHours = date.getHours.bind(date);
+        }
+        else {
+            getHours = date.getUTCHours.bind(date);
+        }
+
         switch (mask.toLowerCase()) {
-            case 'hh:mm': return this.addZero(date.getHours()) + ':' + this.addZero(date.getMinutes());
+            case 'hh:mm': return this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
             case 'dd.mm': return this.addZero(date.getDate()) + '.' + this.addZero(date.getMonth() + 1);
             case 'dd/mm/yyyy': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + '/' + date.getFullYear();
-            case 'dd/mm hh:mm': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + ' ' + this.addZero(date.getHours()) + ':' + this.addZero(date.getMinutes());
+            case 'dd/mm hh:mm': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + ' ' + this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
             case 'mm/dd/yyyy': return this.addZero(date.getMonth() + 1) + '/' + this.addZero(date.getDate()) + '/' + date.getFullYear();
-            case 'dd/mm/yyyy hh:mm': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + '/' + date.getFullYear() + " " + this.addZero(date.getHours()) + ':' + this.addZero(date.getMinutes());
-            case 'yyyy-mm-dd hh:mm': return date.getFullYear() + '-' + this.addZero(date.getMonth() + 1) + '-' + this.addZero(date.getDate()) + " " + this.addZero(date.getHours()) + ':' + this.addZero(date.getMinutes());
+            case 'dd/mm/yyyy hh:mm': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + '/' + date.getFullYear() + " " + this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
+            case 'yyyy-mm-dd hh:mm': return date.getFullYear() + '-' + this.addZero(date.getMonth() + 1) + '-' + this.addZero(date.getDate()) + " " + this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
             default: return this.toString();
         }
     }
+
     static create(dateString: string, ignoreTimezone: boolean = false): Date {
         let date: Date;
-        if (ignoreTimezone) {
-            let now: Date = new Date();
-            date = new Date(dateString);
-            date = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
-        }
-        else {
-            date = new Date(dateString);
-        }
+        date = new Date(dateString);
+        (<any>date).ignoreTimezone = ignoreTimezone;
         return date;
     }
 }
@@ -52,6 +55,6 @@ Date.prototype.addHours = function (h) {
     this.setTime(this.getTime() + (h * 60 * 60 * 1000));
 }
 
-Date.prototype.addOffset = function (): void{
+Date.prototype.addOffset = function (): void {
     this.setTime(this.getTime() - (this.getTimezoneOffset() * 60 * 1000));
 }

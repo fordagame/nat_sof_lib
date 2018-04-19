@@ -19,6 +19,13 @@ interface AjaxOptions {
 
 namespace dcore {
     "use strict";
+    export interface DefaultSandbox {
+        ajax(url: string, options: AjaxOptions): void;
+    }
+
+    DefaultSandbox.prototype.ajax = function (url: string, options: AjaxOptions): void {
+        return null;
+    }
 
     export interface Instance {
         useAjax(): void;
@@ -37,7 +44,7 @@ namespace dcore {
 
         that.ajax = function (url: string, options: AjaxOptions): void {
 
-            let request: AjaxOptions = {
+            let request: AjaxOptions = <AjaxOptions>{
                 method: options.method || "GET",
                 contentType: options.contentType || "application/json",
                 responseType: options.responseType || "",
