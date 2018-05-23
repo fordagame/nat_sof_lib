@@ -1,4 +1,4 @@
-/** 
+﻿/** 
  *  @license dcore - v1.0.0
  *  Copyright © 2016 Valentin Lozev 
  *  Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
@@ -380,9 +380,9 @@ namespace dcore {
             this.beforeRunAction = action;
             this._onDomReady = this._onDomReady.bind(this);
 
-            if (document.readyState === "complete" ||
-                document.readyState === "interactive" ||
-                document.readyState === "loaded" /* old safari browsers */) {
+            if (document.readyState.toString() === "complete" ||
+                document.readyState.toString() === "interactive" ||
+                document.readyState.toString() === "loaded" /* old safari browsers */) {
                 this._onDomReady(null);
             } else {
                 document.addEventListener("DOMContentLoaded", this._onDomReady);
