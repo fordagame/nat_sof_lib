@@ -200,6 +200,9 @@ namespace dcore.plugins.mvp_extension {
 
         validateRange(element: HTMLInputElement): boolean {
             if (element.attributes["data-range"]) {
+                if (element.hasAttribute("data-empty") && element.value == "") {
+                    return true;
+                }
                 let value: number = parseFloat(element.value);
                 if (isNaN(value)) {
                     return false;
@@ -563,7 +566,6 @@ namespace dcore.plugins.mvp_extension {
             });
         }
 
-
         editable_box_click(event_handler: (value: string, event: string, id: string) => void, ev: Event) {
             let element: HTMLElement = <HTMLElement>ev.target;
             let editableInput: HTMLInputElement = document.createElement("input");
@@ -573,7 +575,8 @@ namespace dcore.plugins.mvp_extension {
             editableInput.setAttribute("data-editableid", element.dataset["editableid"]);
             editableInput.setAttribute("data-parentid", element.id);
             editableInput.setAttribute("data-editableinput", "");
-
+            //In order if aggregation is enabled on table editted value should be used.
+            editableInput.setAttribute("data-aggregation", "");
             if (element.dataset["editabletype"]) {
                 let type: string = element.dataset["editabletype"];
             }
