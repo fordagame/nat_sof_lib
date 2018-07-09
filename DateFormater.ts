@@ -5,21 +5,30 @@
 
     format(mask: string, date: Date) {
         let getHours: () => number;
+        let getDays: () => number;
+        let getMonth: () => number;
+        let getYear: () => number;
         if (!(<any>date).ignoreTimezone) {
             getHours = date.getHours.bind(date);
+            getMonth = date.getMonth.bind(date);
+            getYear = date.getFullYear.bind(date);
+            getDays = date.getDate.bind(date);
         }
         else {
             getHours = date.getUTCHours.bind(date);
+            getMonth = date.getUTCMonth.bind(date);
+            getYear = date.getUTCFullYear.bind(date);
+            getDays = date.getUTCDate.bind(date);
         }
 
         switch (mask.toLowerCase()) {
             case 'hh:mm': return this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
-            case 'dd.mm': return this.addZero(date.getDate()) + '.' + this.addZero(date.getMonth() + 1);
-            case 'dd/mm/yyyy': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + '/' + date.getFullYear();
-            case 'dd/mm hh:mm': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + ' ' + this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
-            case 'mm/dd/yyyy': return this.addZero(date.getMonth() + 1) + '/' + this.addZero(date.getDate()) + '/' + date.getFullYear();
-            case 'dd/mm/yyyy hh:mm': return this.addZero(date.getDate()) + '/' + this.addZero(date.getMonth() + 1) + '/' + date.getFullYear() + " " + this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
-            case 'yyyy-mm-dd hh:mm': return date.getFullYear() + '-' + this.addZero(date.getMonth() + 1) + '-' + this.addZero(date.getDate()) + " " + this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
+            case 'dd.mm': return this.addZero(getDays()) + '.' + this.addZero(getMonth() + 1);
+            case 'dd/mm/yyyy': return this.addZero(getDays()) + '/' + this.addZero(getMonth() + 1) + '/' + getYear();
+            case 'dd/mm hh:mm': return this.addZero(getDays()) + '/' + this.addZero(getMonth() + 1) + ' ' + this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
+            case 'mm/dd/yyyy': return this.addZero(date.getMonth() + 1) + '/' + this.addZero(getDays()) + '/' + getYear();
+            case 'dd/mm/yyyy hh:mm': return this.addZero(getDays()) + '/' + this.addZero(getMonth() + 1) + '/' + getYear() + " " + this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
+            case 'yyyy-mm-dd hh:mm': return getYear() + '-' + this.addZero(getMonth() + 1) + '-' + this.addZero(getDays()) + " " + this.addZero(getHours()) + ':' + this.addZero(date.getMinutes());
             default: return this.toString();
         }
     }
