@@ -1,5 +1,5 @@
 {
-  "name": "nat_sof_lib",
+  "name": "nat_sof_lib_new",
   "homepage": "https://github.com/fordagame/nat_sof_lib",
   "authors": [
     "NatSA"
@@ -14,5 +14,6 @@
     "test",
     "tests"
   ],
-  "version": "1.0.10"
+  "version": "1.0.10",
+  "private": true
 }
